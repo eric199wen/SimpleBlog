@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 // reduxForm is the function like connect, communicate with the FormReducer
 import { Field, reduxForm } from 'redux-form';
+import { Link } from 'react-router-dom';
+import { createPost } from '../actions';
 
 class PostsNew extends Component {
   renderField(field) {
+    // destructuring the nested properties
+    const { meta: { touched, error } } = field ;
+    const className = `form-group ${touched && error ? 'has-danger' : ''}`;
+
     return (
-      <div classNam="form-group">
-      <label>{field.label}</label>
+      <div className={className}>
+        <label>{field.label}</label>
         <input
         className="form-control"
         // onChange={field.input.onChange}
@@ -15,14 +22,18 @@ class PostsNew extends Component {
           type="text"
           {...field.input}
         />
-        {field.meta.error}
+        <div className="text-help">
+          {touched ? error : ''}
+        </div>
       </div>
     )
   }
 
   onSubmit(values) {
     // this === component
-    console.log(values);
+    this.props.createPost(values, () => {
+      this.props.history.push('/');
+    });
   }
 
   render() {
@@ -39,8 +50,8 @@ class PostsNew extends Component {
           component={this.renderField}
         />
         <Field
-          label="Tags"
-          name="tags"
+          label="Categories"
+          name="categories"
           component={this.renderField}
         />
         <Field
@@ -49,6 +60,7 @@ class PostsNew extends Component {
           component={this.renderField}
         />
         <button type="submit" className="btn btn-primary">Submit</button>
+        <Link to="/" className="btn btn-danger">Cancel</Link>
       </form>
     );
   }
@@ -56,7 +68,7 @@ class PostsNew extends Component {
 
 // values is the content user input to the form
 function validate(values) {
-  // console.log(values) -> { title: 'asdf', tags: 'asdf', content: 'asdf' }
+  // console.log(values) -> { title: 'asdf', categories: 'asdf', content: 'asdf' }
   const errors = {};
 
   // Validate the inputs from 'values'
@@ -68,8 +80,8 @@ function validate(values) {
     errors.title = "Enter a title";
   }
 
-  if (!values.tags) {
-    errors.tags = "Enter some tags!";
+  if (!values.categories) {
+    errors.categories = "Enter some categories!";
   }
   
   if (!values.content) {
@@ -81,8 +93,16 @@ function validate(values) {
   return errors;
 }
 
-// single argument
+// single argument in reduxForm
+// export default reduxForm({
+//   validate: validate,
+//   form: 'PostsNewForm'
+// })(PostsNew);
+
 export default reduxForm({
   validate: validate,
   form: 'PostsNewForm'
-})(PostsNew);
+})(
+  // return a valid component
+  connect(null, { createPost })(PostsNew)
+);

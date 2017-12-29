@@ -9,6 +9,7 @@ import promise from 'redux-promise';
 import reducers from './reducers';
 import PostsIndex from './components/PostsIndex';
 import PostsNew from './components/PostsNew';
+import PostsShow from './components/PostsShow';
 
 const createStoreWithMiddleware = applyMiddleware(promise)(createStore);
 
@@ -28,7 +29,12 @@ ReactDOM.render(
         {/* react route use loose match, so we use Switch component */}
         {/* match the first route match the url */}
         <Switch>
+          {/* react-router will pass in a bunch of props to help us
+          for navigation */}
           <Route path="/posts/new" component={PostsNew} />
+          {/* :id is a wildcard, route will put whatever in property
+          'id' after / */}
+          <Route path="/posts/:id" component={PostsShow} />
           <Route path="/" component={PostsIndex} />
         </Switch>
       </div>
